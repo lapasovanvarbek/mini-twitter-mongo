@@ -32,7 +32,7 @@ export class User {
   @Prop({ default: 0 })
   postsCount: number;
 
-  @Prop({ default: null })
+  @Prop({ type: Date, default: null })
   deletedAt: Date | null;
 
   @Prop({ default: false })
