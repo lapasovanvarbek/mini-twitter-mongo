@@ -37,6 +37,12 @@ export class User {
 
   @Prop({ default: false })
   isDeleted: boolean;
+
+  @Prop({ default: '' })
+  location: string;
+
+  @Prop({ default: '' })
+  website: string;
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);

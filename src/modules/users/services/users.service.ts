@@ -8,11 +8,23 @@ export class UsersService {
   constructor(@InjectModel(User.name) private userModel: Model<UserDocument>) {}
 
   async findById(userId: string): Promise<UserDocument | null> {
-    return this.userModel.findById(userId).select('-password').exec();
+    const user = await this.userModel
+      .findById(userId)
+      .select('-password')
+      .exec();
+
+    if (!user || user.isDeleted) {
+      return null;
+    }
+
+    return user;
   }
 
   async findByUsername(username: string): Promise<UserDocument | null> {
-    return this.userModel.findOne({ username, isDeleted: false }).exec();
+    return this.userModel
+      .findOne({ username, isDeleted: false })
+      .select('-password')
+      .exec();
   }
 
   async findByEmail(email: string): Promise<UserDocument | null> {
@@ -33,5 +45,19 @@ export class UsersService {
   async create(userData: Partial<User>): Promise<UserDocument> {
     const user = new this.userModel(userData);
     return user.save();
+  }
+
+  async updateProfile(
+    userId: string,
+    updateData: Partial<User> | Record<string, unknown>,
+  ): Promise<UserDocument | null> {
+    return this.userModel
+      .findByIdAndUpdate(
+        userId,
+        { $set: updateData },
+        { new: true, runValidation: true },
+      )
+      .select('-password')
+      .exec();
   }
 }

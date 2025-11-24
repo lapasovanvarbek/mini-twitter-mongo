@@ -67,8 +67,7 @@ export class AuthService {
   }
 
   async validateUser(userId: string) {
-    const user = await this.usersService.findById(userId);
-    return user;
+    return this.usersService.findById(userId);
   }
 
   private generateToken(user: UserDocument) {
