@@ -60,4 +60,23 @@ export class UsersService {
       .select('-password')
       .exec();
   }
+
+  async incrementPostsCount(userId: string): Promise<void> {
+    await this.userModel.findByIdAndUpdate(userId, {
+      $inc: { postsCount: 1 },
+    });
+  }
+
+  async decrementPostsCount(userId: string): Promise<void> {
+    await this.userModel.findByIdAndUpdate(userId, {
+      $inc: { postsCount: -1 },
+    });
+  }
+
+  async findByUsernames(usernames: string[]): Promise<UserDocument[]> {
+    return this.userModel
+      .find({ username: { $in: usernames }, isDeleted: false })
+      .select('_id username')
+      .exec();
+  }
 }
