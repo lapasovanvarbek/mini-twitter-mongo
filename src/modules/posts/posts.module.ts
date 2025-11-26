@@ -1,10 +1,11 @@
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { Post, PostSchema } from './schema/post.schema';
 import { Like, LikeSchema } from './schema/like.schema';
 import { PostsService } from './services/posts.service';
 import { PostsController } from './posts.controller';
 import { UsersModule } from '../users/users.module';
+import { TimelineModule } from '../timeline/timeline.module';
 
 @Module({
   imports: [
@@ -13,6 +14,7 @@ import { UsersModule } from '../users/users.module';
       { name: Like.name, schema: LikeSchema },
     ]),
     UsersModule,
+    forwardRef(() => TimelineModule),
   ],
   controllers: [PostsController],
   providers: [PostsService],

@@ -79,4 +79,28 @@ export class UsersService {
       .select('_id username')
       .exec();
   }
+
+  async incrementFollowingCount(userId: string): Promise<void> {
+    await this.userModel.findByIdAndUpdate(userId, {
+      $inc: { followingCount: 1 },
+    });
+  }
+
+  async decrementFollowingCount(userId: string): Promise<void> {
+    await this.userModel.findByIdAndUpdate(userId, {
+      $inc: { followingCount: -1 },
+    });
+  }
+
+  async incrementFollowersCount(userId: string): Promise<void> {
+    await this.userModel.findByIdAndUpdate(userId, {
+      $inc: { followersCount: 1 },
+    });
+  }
+
+  async decrementFollowersCount(userId: string): Promise<void> {
+    await this.userModel.findByIdAndUpdate(userId, {
+      $inc: { followersCount: -1 },
+    });
+  }
 }

@@ -9,6 +9,7 @@ import { Post, PostDocument } from '../schema/post.schema';
 import { Like, LikeDocument } from '../schema/like.schema';
 import { CreatePostDto } from '../dto/create-post.dto';
 import { UsersService } from '../../users/services/users.service';
+import { TimelineService } from '../../timeline/services/timeline.service';
 
 @Injectable()
 export class PostsService {
@@ -16,6 +17,7 @@ export class PostsService {
     @InjectModel(Post.name) private postModel: Model<PostDocument>,
     @InjectModel(Like.name) private likeModel: Model<LikeDocument>,
     private usersService: UsersService,
+    private timelineService: TimelineService,
   ) {}
 
   async create(
@@ -61,7 +63,12 @@ export class PostsService {
 
     await this.usersService.incrementPostsCount(userId);
 
-    // Populate author info before returning
+    this.timelineService
+      .fanOutPostToFollowers(String(post._id), userId)
+      .catch((error) => {
+        console.error('Error fanning out post to followers:', error);
+      });
+
     return this.populatePost(post);
   }
 
@@ -77,7 +84,6 @@ export class PostsService {
       throw new NotFoundException('Post not found');
     }
 
-    // Check if current user liked this post
     if (userId) {
       const liked = await this.likeModel.exists({
         userId: new Types.ObjectId(userId),
