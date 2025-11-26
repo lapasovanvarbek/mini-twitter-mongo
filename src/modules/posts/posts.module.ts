@@ -6,6 +6,7 @@ import { PostsService } from './services/posts.service';
 import { PostsController } from './posts.controller';
 import { UsersModule } from '../users/users.module';
 import { TimelineModule } from '../timeline/timeline.module';
+import { QueueModule } from '../queue/queue.module';
 
 @Module({
   imports: [
@@ -15,6 +16,7 @@ import { TimelineModule } from '../timeline/timeline.module';
     ]),
     UsersModule,
     forwardRef(() => TimelineModule),
+    QueueModule,
   ],
   controllers: [PostsController],
   providers: [PostsService],

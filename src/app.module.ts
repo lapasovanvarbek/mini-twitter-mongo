@@ -8,6 +8,7 @@ import { UsersModule } from './modules/users/users.module';
 import { PostsModule } from './modules/posts/posts.module';
 import { TimelineModule } from './modules/timeline/timeline.module';
 import { FollowsModule } from './modules/follows/follows.module';
+import { QueueModule } from './modules/queue/queue.module';
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { FollowsModule } from './modules/follows/follows.module';
     PostsModule,
     FollowsModule,
     TimelineModule,
+    QueueModule,
   ],
   controllers: [AppController],
   providers: [AppService],
