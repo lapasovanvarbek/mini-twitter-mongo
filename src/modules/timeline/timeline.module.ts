@@ -6,6 +6,7 @@ import { TimelineService } from './services/timeline.service';
 import { FollowsModule } from '../follows/follows.module';
 import { UsersModule } from '../users/users.module';
 import { TimelineController } from './timeline.controller';
+import { WebSocketModule } from '../websocket/websocket.module';
 
 @Module({
   imports: [
@@ -15,6 +16,7 @@ import { TimelineController } from './timeline.controller';
     ]),
     FollowsModule,
     UsersModule,
+    WebSocketModule,
   ],
   controllers: [TimelineController],
   providers: [TimelineService],

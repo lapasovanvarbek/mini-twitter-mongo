@@ -10,6 +10,8 @@ import { Like, LikeDocument } from '../schema/like.schema';
 import { CreatePostDto } from '../dto/create-post.dto';
 import { UsersService } from '../../users/services/users.service';
 import { TimelineProducer } from '../../queue/producers/timeline.producer';
+import { WebSocketGatewayService } from '../../websocket/websocket.gateway';
+import { UserDocument } from '../../users/schema/user.schema';
 
 @Injectable()
 export class PostsService {
@@ -18,6 +20,7 @@ export class PostsService {
     @InjectModel(Like.name) private likeModel: Model<LikeDocument>,
     private usersService: UsersService,
     private timelineProducer: TimelineProducer,
+    private webSocketGatewayService: WebSocketGatewayService,
   ) {}
 
   async create(
@@ -68,7 +71,22 @@ export class PostsService {
       authorId: userId,
     });
 
-    return this.populatePost(post);
+    const populatedPost = await this.populatePost(post);
+
+    if (mentionUserIds.length > 0) {
+      const author = populatedPost.authorId as unknown as UserDocument;
+      mentionUserIds.forEach((mentionUserId) => {
+        this.webSocketGatewayService.notifyMention(String(mentionUserId), {
+          postId: String(post._id),
+          author: {
+            username: author.username,
+            displayName: author.displayName,
+          },
+        });
+      });
+    }
+
+    return populatedPost;
   }
 
   async findById(postId: string, userId?: string): Promise<PostDocument> {
@@ -145,6 +163,17 @@ export class PostsService {
     await this.postModel.findByIdAndUpdate(postId, {
       $inc: { likesCount: 1 },
     });
+
+    const liker = await this.usersService.findById(userId);
+    if (liker && String(post.authorId) !== userId) {
+      this.webSocketGatewayService.notifyLike(String(post.authorId), {
+        postId,
+        liker: {
+          username: liker.username,
+          displayName: liker.displayName,
+        },
+      });
+    }
 
     return { message: 'Post liked successfully' };
   }

@@ -7,12 +7,14 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { Follow, FollowDocument } from '../schema/follow.schema';
 import { UsersService } from '../../users/services/users.service';
+import { WebSocketGatewayService } from '../../websocket/websocket.gateway';
 
 @Injectable()
 export class FollowsService {
   constructor(
     @InjectModel(Follow.name) private followModel: Model<FollowDocument>,
     private usersService: UsersService,
+    private webSocketGatewayService: WebSocketGatewayService,
   ) {}
 
   async followUser(
@@ -50,6 +52,15 @@ export class FollowsService {
       this.usersService.incrementFollowingCount(followerId),
       this.usersService.incrementFollowersCount(followingId),
     ]);
+
+    const follower = await this.usersService.findById(followerId);
+    if (follower) {
+      this.webSocketGatewayService.notifyFollow(followingId, {
+        username: follower.username,
+        displayName: follower.displayName,
+        profileImage: follower.profileImage,
+      });
+    }
 
     return { message: 'Successfully followed user' };
   }

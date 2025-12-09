@@ -5,6 +5,8 @@ import { Timeline, TimelineDocument } from '../schema/timeline.schema';
 import { Post, PostDocument } from '../../posts/schema/post.schema';
 import { FollowsService } from '../../follows/services/follows.service';
 import { UsersService } from '../../users/services/users.service';
+import { WebSocketGatewayService } from '../../websocket/websocket.gateway';
+import { UserDocument } from '../../users/schema/user.schema';
 
 @Injectable()
 export class TimelineService {
@@ -13,6 +15,7 @@ export class TimelineService {
     @InjectModel(Post.name) private postModel: Model<PostDocument>,
     private followsService: FollowsService,
     private usersService: UsersService,
+    private webSocketGatewayService: WebSocketGatewayService,
   ) {}
 
   async getHomeTimeline(
@@ -77,6 +80,28 @@ export class TimelineService {
 
     if (timelineEntries.length > 0) {
       await this.timelineModel.insertMany(timelineEntries);
+    }
+
+    const post = await this.postModel
+      .findById(postId)
+      .populate('authorId', 'username displayName profileImage')
+      .exec();
+
+    if (post) {
+      const author = post.authorId as unknown as UserDocument;
+      const createdAt = (post as { createdAt?: Date }).createdAt || new Date();
+      followerIds.forEach((followerId) => {
+        this.webSocketGatewayService.notifyNewPost(followerId, {
+          _id: post._id,
+          content: post.content,
+          authorId: {
+            username: author.username,
+            displayName: author.displayName,
+            profileImage: author.profileImage,
+          },
+          createdAt,
+        });
+      });
     }
   }
 }

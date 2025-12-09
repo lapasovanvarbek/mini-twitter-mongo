@@ -7,6 +7,7 @@ import { PostsController } from './posts.controller';
 import { UsersModule } from '../users/users.module';
 import { TimelineModule } from '../timeline/timeline.module';
 import { QueueModule } from '../queue/queue.module';
+import { WebSocketModule } from '../websocket/websocket.module';
 
 @Module({
   imports: [
@@ -17,6 +18,7 @@ import { QueueModule } from '../queue/queue.module';
     UsersModule,
     forwardRef(() => TimelineModule),
     QueueModule,
+    WebSocketModule,
   ],
   controllers: [PostsController],
   providers: [PostsService],

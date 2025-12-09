@@ -9,6 +9,7 @@ import { PostsModule } from './modules/posts/posts.module';
 import { TimelineModule } from './modules/timeline/timeline.module';
 import { FollowsModule } from './modules/follows/follows.module';
 import { QueueModule } from './modules/queue/queue.module';
+import { WebSocketModule } from './modules/websocket/websocket.module';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { QueueModule } from './modules/queue/queue.module';
     FollowsModule,
     TimelineModule,
     QueueModule,
+    WebSocketModule,
   ],
   controllers: [AppController],
   providers: [AppService],
